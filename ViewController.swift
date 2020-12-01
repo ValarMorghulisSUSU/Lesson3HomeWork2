@@ -10,6 +10,7 @@ import UIKit
 class ViewController: UIViewController {
 
 //    var totalScore: Int = 0
+    @IBOutlet var tapGestureRecogniser: UITapGestureRecognizer!
     var scoreLabel: UILabel!
     var tapView: UIView!
 //    var labelTopAnhcor:NSLayoutConstraint?
