@@ -9,57 +9,74 @@ import UIKit
 
 class ViewController: UIViewController {
 
-//    var totalScore: Int = 0
-    @IBOutlet var tapGestureRecogniser: UITapGestureRecognizer!
+    var totalScore: Int = 0
     var scoreLabel: UILabel!
     var tapView: UIView!
-//    var labelTopAnhcor:NSLayoutConstraint?
+    
+    private var lastTranslation:CGFloat = 0
+    private lazy var panGestureRecognizer: UIPanGestureRecognizer = UIPanGestureRecognizer (
+        target: self, action: #selector(tapViewDidSlide(_:))
+    )
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        //scoreLabel = UILabel()
-        //
-        //addMyLabel()
-        //addView()
         scoreLabel = UILabel()
-        scoreLabel.addMyLabel(to: view)
         tapView = UIView()
-        tapView.addMyView(to: view, with: scoreLabel)
+        view.addSubview(scoreLabel)
+        view.changeMyLabel(scoreLabel)
+        view.addSubview(tapView)
+        view.changeMyView(tapView, with: scoreLabel)
+        tapView.addGestureRecognizer(panGestureRecognizer)
+        
     }
     
-
-
+    
+    
+    @objc func tapViewDidSlide(_ sender: UIPanGestureRecognizer){
+        switch sender.state {
+        case .changed:
+            let change = sender.translation(in: tapView).y - lastTranslation
+            if change < 0 {
+                totalScore += 1
+            }
+            if change > 0 {
+                totalScore -= 1
+            }
+            lastTranslation = sender.translation(in: tapView).y
+            scoreLabel.updateScore(to: totalScore)
+        default: break
+        }
+    }
 
 }
 
 extension UILabel {
     func updateScore(to totalScore: Int) {
-        
-    }
-    func addMyLabel(to view:UIView ) {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.textAlignment = .right
-        self.text = "Score"
-        view.addSubview(self)
-        NSLayoutConstraint.activate([
-            self.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
-            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
-            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 100),
-            self.heightAnchor.constraint(equalToConstant: 20)
-        ])
+        self.text = "Число: \(totalScore)"
     }
     
 }
 extension UIView {
-    func addMyView(to view:UIView, with label: UILabel) {
-        view.addSubview(self)
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .systemOrange
+    func changeMyView(_ wich: UIView, with label: UILabel) {
+        wich.translatesAutoresizingMaskIntoConstraints = false
+        wich.backgroundColor = .systemOrange
         NSLayoutConstraint.activate([
-            self.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 40),
-            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
-            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
-            self.heightAnchor.constraint(equalToConstant: 200)
+            wich.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 40),
+            wich.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            wich.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.2),
+            wich.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -60)
+        ])
+    }
+    func changeMyLabel(_ myLabel: UILabel) {
+        myLabel.translatesAutoresizingMaskIntoConstraints = false
+        myLabel.textAlignment = .right
+        myLabel.text = "Число: "
+        self.addSubview(myLabel)
+        NSLayoutConstraint.activate([
+            myLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
+            myLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            myLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
 }
